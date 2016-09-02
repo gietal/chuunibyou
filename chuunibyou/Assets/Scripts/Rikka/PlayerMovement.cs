@@ -75,7 +75,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void Move(Vector3 direction)
+    public void Move(Vector3 direction)
     {
         if (isDashing)
             return;
@@ -92,7 +92,7 @@ public class PlayerMovement : MonoBehaviour
         transform.LookAt(transform.position + moveDirection);
     }
 
-    void Jump()
+    public void Jump()
     {
         if (isDashing)
             return;
@@ -101,8 +101,11 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = false;
     }
 
-    void Dash()
+    public void Dash()
     {
+        if (isDashing)
+            return;
+        
         isDashing = true;
 
         // get new target dash
