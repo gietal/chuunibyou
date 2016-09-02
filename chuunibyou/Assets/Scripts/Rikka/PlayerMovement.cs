@@ -11,7 +11,13 @@ public class PlayerMovement : MonoBehaviour
     public float moveSpeed = 10;
     public float jumpPower = 10;
     public float gravityMultiplier = 1;
+    public float dashDistance = 10;
+    public float dashSpeed = 10;
+
+    private Vector3 dashTarget;
     private bool isGrounded = true;
+    private bool isDashing = false;
+
     private Vector3 floorNormal = Vector3.up;
 
 
@@ -49,14 +55,31 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             // airborne, apply gravity to the body
-            rigidBody.AddForce((Physics.gravity * gravityMultiplier) - Physics.gravity);
+            if (!isDashing)
+            {
+                rigidBody.AddForce((Physics.gravity * gravityMultiplier) - Physics.gravity);
+            }
         }
 
-
+        // check dashing
+        if (!isDashing)
+        {
+            if (CrossPlatformInputManager.GetButtonDown("Dash"))
+            {
+                Dash();
+            }
+        }
+        else
+        {
+            UpdateDashing();
+        }
     }
 
     void Move(Vector3 direction)
     {
+        if (isDashing)
+            return;
+        
         // project the movement direction to the floor's normal
         var moveDirection = Vector3.ProjectOnPlane(direction, floorNormal);
 
@@ -71,8 +94,43 @@ public class PlayerMovement : MonoBehaviour
 
     void Jump()
     {
+        if (isDashing)
+            return;
+        
         rigidBody.velocity += new Vector3(0, jumpPower, 0);
         isGrounded = false;
+    }
+
+    void Dash()
+    {
+        isDashing = true;
+
+        // get new target dash
+        dashTarget = transform.position + transform.forward * dashDistance;
+    }
+
+    void UpdateDashing()
+    {
+        // did we pass the target yet?
+        if (Vector3.Dot(dashTarget - transform.position, transform.forward) < 0)
+        {
+            // yes
+            isDashing = false;
+            return;
+        }
+
+        // dash with set speed forward
+        var dashVelocity = transform.forward * dashSpeed;
+        // dont mess with y
+        dashVelocity.y = rigidBody.velocity.y;
+
+        // set velocity
+        rigidBody.velocity = dashVelocity;
+
+        #if UNITY_EDITOR
+        // helper to visualise the dash target
+        Debug.DrawLine(transform.position + Vector3.up, dashTarget + Vector3.up);
+        #endif
     }
 
     void CheckGroundStatus()
