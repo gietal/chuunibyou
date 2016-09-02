@@ -20,8 +20,8 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-        var hMovement = CrossPlatformInputManager.GetAxis("Horizontal");
-        var vMovement = CrossPlatformInputManager.GetAxis("Vertical");
+        var hMovement = CrossPlatformInputManager.GetAxis("L_Horizontal");
+        var vMovement = CrossPlatformInputManager.GetAxis("L_Vertical");
 
         // find movement direction relative to the camera
         // flatten the cam's forward and right vector to the xz axis
