@@ -98,7 +98,7 @@ public class PlayerMovement : MonoBehaviour
         {
             UpdateDashing();
         }
-            
+        animator.SetBool("isDashing", isDashing);
     }
 
     void Update()
