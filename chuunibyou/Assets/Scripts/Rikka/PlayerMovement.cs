@@ -3,10 +3,12 @@ using System.Collections;
 using UnityStandardAssets.CrossPlatformInput;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Animator))]
 public class PlayerMovement : MonoBehaviour 
 {
     GameObject mainCamera;
     Rigidbody rigidBody;
+    Animator animator;
 
     public float moveSpeed = 10;
     public float jumpPower = 10;
@@ -15,8 +17,9 @@ public class PlayerMovement : MonoBehaviour
     public float dashSpeed = 10;
 
     private Vector3 dashTarget;
-    private bool isGrounded = true;
-    private bool isDashing = false;
+    public bool isRunning { get; private set; }
+    public bool isGrounded { get; private set; }
+    public bool isDashing { get; private set; }
 
     private Vector3 floorNormal = Vector3.up;
 
@@ -27,10 +30,18 @@ public class PlayerMovement : MonoBehaviour
         Debug.AssertFormat(mainCamera != null, "no main camera");
 
         rigidBody = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
+
+        isRunning = false;
+        isGrounded = true;
+        isDashing = false;
     }
 
     void FixedUpdate()
     {
+        // are we grounded?
+        CheckGroundStatus();
+
         var hMovement = CrossPlatformInputManager.GetAxis("L_Horizontal");
         var vMovement = CrossPlatformInputManager.GetAxis("L_Vertical");
 
@@ -41,7 +52,8 @@ public class PlayerMovement : MonoBehaviour
         var moveDirection = vMovement*camForward + hMovement*camRight;
         Move(moveDirection);
 
-        CheckGroundStatus();
+        // update animation
+        animator.SetBool("isRunning", isRunning);
 
         // check if jumping
         if (isGrounded )
@@ -73,6 +85,7 @@ public class PlayerMovement : MonoBehaviour
         {
             UpdateDashing();
         }
+            
     }
 
     public void Move(Vector3 direction)
@@ -83,13 +96,27 @@ public class PlayerMovement : MonoBehaviour
         // project the movement direction to the floor's normal
         var moveDirection = Vector3.ProjectOnPlane(direction, floorNormal);
 
-        // dont mess with y velocity
+        // update velocity but dont mess with y velocity
         var newVelocity = moveDirection * moveSpeed;
         newVelocity.y = rigidBody.velocity.y;
         rigidBody.velocity = newVelocity;
 
-        // update rotation to look at the move direction
-        transform.LookAt(transform.position + moveDirection);
+        // update rotation to look at the move direction xz
+        transform.LookAt(transform.position + direction);
+
+        //Debug.Log("moveDirection: " + moveDirection + "; newVelocity: " + newVelocity);
+        //Debug.Log("moveDirection SqMagnitude: " + moveDirection.sqrMagnitude);
+
+        // if no movement or not grounded
+        if (moveDirection.sqrMagnitude <= 0.01 || !isGrounded)
+        {
+            // then we're not running
+            isRunning = false;
+            return;
+        }
+
+        // otherwise we are moving and is grounded
+        isRunning = true;
     }
 
     public void Jump()
@@ -139,7 +166,7 @@ public class PlayerMovement : MonoBehaviour
     void CheckGroundStatus()
     {
         RaycastHit hitInfo;
-        const float groundCheckDistance = 0.15f;
+        const float groundCheckDistance = 0.2f;
 
         #if UNITY_EDITOR
         // helper to visualise the ground check ray in the scene view
