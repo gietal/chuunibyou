@@ -9,6 +9,8 @@ public class PlayerMovement : MonoBehaviour
     GameObject mainCamera;
     Rigidbody rigidBody;
     Animator animator;
+    AnimatorStateInfo currentAnimState;
+    AnimatorStateInfo prevAnimState;
 
     public float moveSpeed = 10;
     public float jumpPower = 10;
@@ -39,8 +41,19 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
+        // update anim state
+        prevAnimState = currentAnimState;
+        currentAnimState = animator.GetCurrentAnimatorStateInfo(0);
+
+        if (AnimationChangedState())
+        {
+            ResetAnimationTrigger();
+        }
+
         // are we grounded?
         CheckGroundStatus();
+        // update animator
+        animator.SetBool("isGrounded", isGrounded);
 
         var hMovement = CrossPlatformInputManager.GetAxis("L_Horizontal");
         var vMovement = CrossPlatformInputManager.GetAxis("L_Vertical");
@@ -88,6 +101,22 @@ public class PlayerMovement : MonoBehaviour
             
     }
 
+    void Update()
+    {
+        
+    }
+
+    void ResetAnimationTrigger()
+    {
+        // reset animation trigger that only supposed to be active until the animation state changed
+        animator.ResetTrigger("jump");
+    }
+
+    bool AnimationChangedState()
+    {
+        return prevAnimState.fullPathHash != currentAnimState.fullPathHash;
+    }
+
     public void Move(Vector3 direction)
     {
         if (isDashing)
@@ -126,6 +155,7 @@ public class PlayerMovement : MonoBehaviour
         
         rigidBody.velocity += new Vector3(0, jumpPower, 0);
         isGrounded = false;
+        animator.SetTrigger("jump");
     }
 
     public void Dash()
