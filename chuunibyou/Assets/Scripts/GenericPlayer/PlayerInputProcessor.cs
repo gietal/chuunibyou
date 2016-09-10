@@ -1,10 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-namespace chuunibyou
+namespace chuunibyou 
 {
-    
-    public class NewBehaviourScript : MonoBehaviour {
+    public class PlayerInputProcessor : MonoBehaviour {
 
     	// Use this for initialization
     	void Start () {
@@ -16,5 +15,4 @@ namespace chuunibyou
     	
     	}
     }
-
 }
