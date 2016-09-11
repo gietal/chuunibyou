@@ -117,8 +117,6 @@ namespace chuunibyou
 
         void FixedUpdate()
         {
-            
-
             // update anim state
             prevAnimState = currentAnimState;
             currentAnimState = animator.GetCurrentAnimatorStateInfo(0);
@@ -130,9 +128,17 @@ namespace chuunibyou
             // are we grounded?
             CheckGroundStatus();
 
-            // airborne movement
-            if(!isGrounded)
+
+            if (isGrounded)
             {
+                // land movement
+                if (rigidBody.velocity.sqrMagnitude < 0.01f)
+                    isRunning = false;
+            }
+            else 
+            {
+                // airborne movement
+
                 // dash doesnt get affected by gravity
                 // only apply gravity while not dashing 
                 if (!isDashing)

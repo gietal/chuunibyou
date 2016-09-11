@@ -25,11 +25,14 @@ namespace chuunibyou
         // another option is to disable applyRootMotion and enable Animator.animatePhysics
         void FixedUpdate()
         {
-            // update movement
-            var hMovement = CrossPlatformInputManager.GetAxis("L_Horizontal");
-            var vMovement = CrossPlatformInputManager.GetAxis("L_Vertical");
-            movementManager.Move(hMovement, vMovement);
-
+            // update movement if not doing any combo
+            if (comboManager.status == ComboManager.Status.Idle)
+            {
+                var hMovement = CrossPlatformInputManager.GetAxis("L_Horizontal");
+                var vMovement = CrossPlatformInputManager.GetAxis("L_Vertical");
+                movementManager.Move(hMovement, vMovement);
+            }
+                
             // update jumping
             if (CrossPlatformInputManager.GetButtonDown("Jump"))
             {

@@ -7,7 +7,30 @@ namespace chuunibyou
     {
         protected override void RegisterCombos()
         {
-            
+            RegisterCombo(new ComboAction_Empty(), 
+                ComboActionType.LightAttack
+            );
+            //RegisterCombo(new ComboAction_Empty(), ComboActionType.LightAttack); // assert already exist
+            //RegisterCombo(new ComboAction_Empty(), ComboActionType.LightAttack, ComboActionType.LightAttack, ComboActionType.LightAttack); // assert Light, Light combo doesnt exist
+
+            RegisterCombo(new ComboAction_Empty(), 
+                ComboActionType.LightAttack, 
+                ComboActionType.LightAttack
+            );
+
+            RegisterCombo(new ComboAction_Empty(), 
+                ComboActionType.LightAttack, 
+                ComboActionType.LightAttack,
+                ComboActionType.LightAttack
+            );
+
+            RegisterCombo(new ComboAction_Empty(), 
+                ComboActionType.LightAttack, 
+                ComboActionType.LightAttack,
+                ComboActionType.LightAttack,
+                ComboActionType.LightAttack
+            );
         }
+        
     }
 }
