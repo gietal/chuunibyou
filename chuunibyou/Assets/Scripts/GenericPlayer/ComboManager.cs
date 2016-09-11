@@ -13,12 +13,33 @@ namespace chuunibyou
 
     public abstract class ComboManager : MonoBehaviour 
     {
+        public enum Status
+        {
+            Idle = 0,
+            WaitingForNextComboInput,
+            RunningCombo
+        }
+
         ComboActionNode initialNode = new ComboAction_Empty();
         ComboActionNode currentNode;
 
         List<ComboActionType> actionsBuffer = new List<ComboActionType>();
 
         public bool isBusy  { get; protected set; }
+
+        public Status status
+        {
+            get
+            {
+                if (isBusy)
+                    return Status.RunningCombo;
+                // !isBusy
+                if (actionsBuffer.Count > 0)
+                    return Status.WaitingForNextComboInput;
+                // !isBusy && actionsBuffer.Count == 0
+                return Status.Idle;
+            }
+        }
 
         void Awake()
         {
@@ -61,6 +82,10 @@ namespace chuunibyou
             // set the next action to be the given node
             curNode.next[(int)lastAction] = comboNode;
 
+            // set the previous action node of the given to be the current node
+            comboNode.prev = curNode;
+
+            // save the manager
             comboNode.manager = this;
         }
 
@@ -87,12 +112,15 @@ namespace chuunibyou
             currentNode = nextAction;
             currentNode.OnBegin();
             isBusy = true;
-        }
 
+                   
+        }
+                        
         public void Reset()
         {
             currentNode = initialNode;
             isBusy = false;
+            actionsBuffer.Clear();
         }
 
         void FixedUpdate()
@@ -115,7 +143,7 @@ namespace chuunibyou
         }
 
         // child must implement this to register the combos
-        protected virtual void RegisterCombos();
+        protected abstract void RegisterCombos();
             
     }
 }
