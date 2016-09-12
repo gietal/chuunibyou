@@ -21,6 +21,8 @@ namespace chuunibyou
             RunningCombo
         }
 
+        Animator animator;
+
         ComboActionNode initialNode = new ComboAction_Empty();
         ComboActionNode currentNode;
 
@@ -46,6 +48,8 @@ namespace chuunibyou
 
         void Awake()
         {
+            animator = GetComponent<Animator>();
+            Debug.AssertFormat(animator != null, this.name + " doesnt have animator");
             currentNode = initialNode;
             RegisterCombos();
         }
@@ -126,11 +130,26 @@ namespace chuunibyou
             // begin the action
             currentNode.Begin();
 
+            // begin the animation
+            switch (action)
+            {
+                case ComboActionType.LightAttack:
+                    {
+                        animator.SetTrigger("lightAttack");
+                        break;
+                    }
+                case ComboActionType.HeavyAttack:
+                    {
+                        animator.SetTrigger("heavyAttack");
+                        break;
+                    }
+            }
         }
                         
         public void Reset()
         {
             Debug.Log("combo Reset");
+            animator.SetTrigger("finishAttack");
             currentNode = initialNode;
             isBusy = false;
             actionsBuffer.Clear();
@@ -191,15 +210,7 @@ namespace chuunibyou
 
 
         }
-
-        IEnumerator ResetDelayed(float seconds)
-        {
-            Debug.Log("ResetDelayed start");
-            yield return new WaitForSeconds(seconds);
-            Debug.Log("ResetDelayed going to call Reset()");
-            Reset();
-            Debug.Log("ResetDelayed end");
-        }
+           
 
         // child must implement this to register the combos
         protected abstract void RegisterCombos();
