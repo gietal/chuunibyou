@@ -12,8 +12,6 @@ namespace chuunibyou
         GameObject mainCamera;
         Rigidbody rigidBody;
         Animator animator;
-        AnimatorStateInfo currentAnimState;
-        AnimatorStateInfo prevAnimState;
 
         public float moveSpeed = 10;
         public float jumpPower = 10;
@@ -117,14 +115,6 @@ namespace chuunibyou
 
         void FixedUpdate()
         {
-            // update anim state
-            prevAnimState = currentAnimState;
-            currentAnimState = animator.GetCurrentAnimatorStateInfo(0);
-            if (AnimationChangedState())
-            {
-                ResetAnimationTrigger();
-            }
-
             // are we grounded?
             CheckGroundStatus();
 
@@ -159,17 +149,6 @@ namespace chuunibyou
         void Update()
         {
             
-        }
-
-        void ResetAnimationTrigger()
-        {
-            // reset animation trigger that only supposed to be active until the animation state changed
-            animator.ResetTrigger("jump");
-        }
-
-        bool AnimationChangedState()
-        {
-            return prevAnimState.fullPathHash != currentAnimState.fullPathHash;
         }
 
         // generic move that takes a normalized axis [-1, 1]
